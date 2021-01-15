@@ -2,7 +2,7 @@
 # author:wolf
 import base64
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 def get_plugin_info():
     plugin_info = {
@@ -26,17 +26,17 @@ def check(host,port,timeout):
         for password in PASSWORD_DIC:
             try:
                 login_url = url+'/jmx-console'
-                request = urllib2.Request(login_url)
+                request = urllib.request.Request(login_url)
                 auth_str_temp=user+':'+password
                 auth_str=base64.b64encode(auth_str_temp)
                 request.add_header('Authorization', 'Basic '+auth_str)
-                res = urllib2.urlopen(request,timeout=timeout)
+                res = urllib.request.urlopen(request,timeout=timeout)
                 res_code = res.code
                 res_html = res.read()
-            except urllib2.HTTPError,e:
+            except urllib.error.HTTPError as e:
                 res_code = e.code
                 res_html = e.read()
-            except urllib2.URLError,e:
+            except urllib.error.URLError as e:
                 error_i+=1
                 if error_i >= 3:
                     return
@@ -47,22 +47,22 @@ def check(host,port,timeout):
                 continue
             for flag in flag_list:
                 if flag in res_html:
-                    info = u'存在弱口令，用户名：%s，密码：%s'%(user,password)
+                    info = '存在弱口令，用户名：%s，密码：%s'%(user,password)
                     return info
     for user in user_list:
         for password in PASSWORD_DIC:
             try:
                 login_url = url+'/console/App.html'
-                request = urllib2.Request(login_url)
+                request = urllib.request.Request(login_url)
                 auth_str_temp=user+':'+password
                 auth_str=base64.b64encode(auth_str_temp)
                 request.add_header('Authorization', 'Basic '+auth_str)
-                res = urllib2.urlopen(request,timeout=timeout)
+                res = urllib.request.urlopen(request,timeout=timeout)
                 res_code = res.code
                 res_html = res.read()
-            except urllib2.HTTPError,e:
+            except urllib.error.HTTPError as e:
                 res_code = e.code
-            except urllib2.URLError,e:
+            except urllib.error.URLError as e:
                 error_i+=1
                 if error_i >= 3:
                     return
@@ -73,21 +73,21 @@ def check(host,port,timeout):
                 continue
             for flag in flag_list:
                 if flag in res_html:
-                    info = u'存在弱口令，用户名：%s，密码：%s' % (user, password)
+                    info = '存在弱口令，用户名：%s，密码：%s' % (user, password)
                     return info
     for user in user_list:
         for password in PASSWORD_DIC:
             try:
                 login_url = url+'/admin-console/login.seam'
-                res_html = urllib2.urlopen(login_url).read()
+                res_html = urllib.request.urlopen(login_url).read()
                 if '"http://jboss.org/embjopr/"' in res_html:
                     key_str=re.search('javax.faces.ViewState\" value=\"(.*?)\"',res_html)
-                    key_hash=urllib.quote(key_str.group(1))
+                    key_hash=urllib.parse.quote(key_str.group(1))
                     PostStr="login_form=login_form&login_form:name=%s&login_form:password=%s&login_form:submit=Login&javax.faces.ViewState=%s"%(user,password,key_hash)
-                    request = urllib2.Request(login_url,PostStr)
-                    res = urllib2.urlopen(request,timeout=timeout)
+                    request = urllib.request.Request(login_url,PostStr)
+                    res = urllib.request.urlopen(request,timeout=timeout)
                     if 'admin-console/secure/summary.seam' in res.read():
-                        info = u'存在弱口令，用户名：%s，密码：%s' % (user, password)
+                        info = '存在弱口令，用户名：%s，密码：%s' % (user, password)
                         return info
             except:
                 pass

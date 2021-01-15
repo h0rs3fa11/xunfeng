@@ -20,7 +20,7 @@ def querylogic(list):
                 if q_key == 'port':
                     query['port'] = int(q_value)
                 elif q_key == 'banner':
-                    zhPattern = re.compile(u'[\u4e00-\u9fa5]+')
+                    zhPattern = re.compile('[\u4e00-\u9fa5]+')
                     contents = q_value
                     match = zhPattern.search(contents)
                     # 如果没有中文用全文索引

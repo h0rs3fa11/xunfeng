@@ -1,6 +1,6 @@
 # coding:utf-8
 # author:wolf
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import socket
 import time
 import random
@@ -48,9 +48,9 @@ def check(host, port, timeout):
         time.sleep(10)
         url = "http://%s:%d" % (host, int(port))
         webshell_url = "%s/%s/xunfeng.jsp" % (url, name)
-        res = urllib2.urlopen(webshell_url, timeout=timeout)
+        res = urllib.request.urlopen(webshell_url, timeout=timeout)
         if 'xunfengtest' in res.read():
-            info = u"Jboss Authentication bypass url:%s" % (webshell_url)
+            info = "Jboss Authentication bypass url:%s" % (webshell_url)
             return info
-    except Exception, e:
+    except Exception as e:
         pass

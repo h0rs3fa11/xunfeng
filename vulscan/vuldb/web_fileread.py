@@ -27,6 +27,6 @@ def check(ip, port, timeout):
         data = s.recv(1024)
         s.close()
         if 'root:' in data and 'nobody:' in data:
-            return u"web容器任意文件读取漏洞"
+            return "web容器任意文件读取漏洞"
     except:
         pass

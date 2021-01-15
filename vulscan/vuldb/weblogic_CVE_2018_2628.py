@@ -82,4 +82,4 @@ def check(ip, port, timeout):
     rs = sendEvilObjData(sock, PAYLOAD)
     p = re.findall(VER_SIG, rs, re.S)
     if len(p) > 0:
-        return u"存在WebLogic WLS远程执行漏洞(CVE-2018-2628)"
+        return "存在WebLogic WLS远程执行漏洞(CVE-2018-2628)"

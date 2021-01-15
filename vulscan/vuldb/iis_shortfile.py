@@ -1,5 +1,5 @@
 # coding:utf-8
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 def get_plugin_info():
@@ -21,11 +21,11 @@ def check(ip, port, timeout):
         url = ip + ":" + str(port)
         flag_400 = '/otua*~1.*/.aspx'
         flag_404 = '/*~1.*/.aspx'
-        request = urllib2.Request('http://' + url + flag_400)
-        req = urllib2.urlopen(request, timeout=timeout)
+        request = urllib.request.Request('http://' + url + flag_400)
+        req = urllib.request.urlopen(request, timeout=timeout)
         if int(req.code) == 400:
-            req_404 = urllib2.urlopen('http://' + url + flag_404, timeout=timeout)
+            req_404 = urllib.request.urlopen('http://' + url + flag_404, timeout=timeout)
             if int(req_404.code) == 404:
-                return u'iis 短文件名猜解漏洞'
-    except Exception, e:
+                return 'iis 短文件名猜解漏洞'
+    except Exception as e:
         pass

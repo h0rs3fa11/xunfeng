@@ -1,6 +1,6 @@
 # coding=utf-8
 # author:wolf
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 def get_plugin_info():
@@ -22,7 +22,7 @@ def check(host, port, timeout):
     error_i = 0
     flag_list = ['<th>Resin home:</th>', 'The Resin version', 'Resin Summary']
     user_list = ['admin']
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor())
     for user in user_list:
         for password in PASSWORD_DIC:
             try:
@@ -30,14 +30,14 @@ def check(host, port, timeout):
                 res = opener.open(url + '/resin-admin/j_security_check?j_uri=index.php', PostStr ,timeout=timeout)
                 res_html = res.read()
                 res_code = res.code
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 return
-            except urllib2.URLError, e:
+            except urllib.error.URLError as e:
                 error_i += 1
                 if error_i >= 3:
                     return
                 continue
             for flag in flag_list:
                 if flag in res_html or int(res_code) == 408:
-                    info = u'%s/resin-admin 存在弱口令 用户名：%s，密码：%s' % (url, user, password)
+                    info = '%s/resin-admin 存在弱口令 用户名：%s，密码：%s' % (url, user, password)
                     return info

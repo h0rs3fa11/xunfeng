@@ -1,5 +1,5 @@
 #coding=utf-8
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import ssl
 import base64
 try:
@@ -30,9 +30,9 @@ def check(ip,port,timeout):
     else:
         url = "http://" + ip + ":" + str(port)
     try:
-        urllib2.urlopen(url, timeout=timeout)
+        urllib.request.urlopen(url, timeout=timeout)
         return
-    except urllib2.HTTPError,e:
+    except urllib.error.HTTPError as e:
         if e.code != 401:return
     except:
         return
@@ -40,17 +40,17 @@ def check(ip,port,timeout):
         for pass_ in PASSWORD_DIC:
             try:
                 pass_ = str(pass_.replace('{user}', user))
-                request = urllib2.Request(url)
+                request = urllib.request.Request(url)
                 auth_str_temp=user+':'+pass_
                 auth_str=base64.b64encode(auth_str_temp)
                 request.add_header('Authorization', 'Basic '+auth_str)
-                res = urllib2.urlopen(request,timeout=timeout)
+                res = urllib.request.urlopen(request,timeout=timeout)
                 res_code = res.code
                 if res_code == 200:
-                    return u'存在弱口令 %s:%s' % (user, pass_)
-            except urllib2.HTTPError:
+                    return '存在弱口令 %s:%s' % (user, pass_)
+            except urllib.error.HTTPError:
                 continue
-            except urllib2.URLError,e:
+            except urllib.error.URLError as e:
                 error_i+=1
                 if error_i >= 3:return
                 continue

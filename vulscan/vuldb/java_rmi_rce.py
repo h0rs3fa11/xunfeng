@@ -146,6 +146,6 @@ def check(ip, port, timeout):
         packet1 = sock.recv(10240)
         sock.close()
         if "8888" in packet1:
-            return u'Java RMI 反序列化代码执行'
+            return 'Java RMI 反序列化代码执行'
     except:
         pass

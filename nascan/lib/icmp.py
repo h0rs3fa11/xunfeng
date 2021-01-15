@@ -5,7 +5,7 @@ import struct
 import os
 import time
 import array
-import log
+from . import log
 
 class SendPingThr(threading.Thread):
     def __init__(self, ipPool, icmpPacket, icmpSocket, timeout=3):
@@ -74,6 +74,6 @@ class Nscan:
             except Exception:
                 pass
             finally:
-                if not sendThr.isAlive():
+                if not sendThr.is_alive():
                     break
         return recvFroms & ipPool

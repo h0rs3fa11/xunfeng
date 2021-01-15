@@ -26,6 +26,6 @@ def check(ip, port, timeout):
         data = s.recv(1024)
         s.close()
         if 'Requested Range Not Satisfiable' in data and 'Server: Microsoft' in data:
-            return u"存在HTTP.sys远程代码执行漏洞"
+            return "存在HTTP.sys远程代码执行漏洞"
     except:
         pass

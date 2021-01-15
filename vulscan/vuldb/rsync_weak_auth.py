@@ -165,18 +165,18 @@ def check(host, port, timeout=5):
                     except VersionNotSuppError as e:
                         # TODO fengxun error support
                         pass
-    except Exception, e:
+    except Exception as e:
         pass
 
     if not_unauth_list:
-        info += u'未授权访问目录有:%s;' %','.join(not_unauth_list)
+        info += '未授权访问目录有:%s;' %','.join(not_unauth_list)
     if weak_auth_list:
         for weak_auth in weak_auth_list:
-            info += u'目录%s存在弱验证:%s:%s;' %weak_auth
+            info += '目录%s存在弱验证:%s:%s;' %weak_auth
     if info:
         return info
 
 if __name__ == '__main__':
     ip_list = []
     for ip_addr in ip_list:
-        print(ip_addr, check(ip_addr, 873))
+        print((ip_addr, check(ip_addr, 873)))

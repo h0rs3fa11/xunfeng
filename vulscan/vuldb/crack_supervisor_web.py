@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import base64
 
@@ -25,13 +25,13 @@ def request(url, user="", password=""):
     <methodName>supervisor.getSupervisorVersion</methodName>
     </methodCall>
     """
-    req = urllib2.Request(url, data)
+    req = urllib.request.Request(url, data)
     if user != "" or password != "":
         basic = base64.b64encode("%s:%s" % (user, password))
         req.add_header(
             'Authorization', 'Basic %s' % basic)
     try:
-        resp = urllib2.urlopen(req)
+        resp = urllib.request.urlopen(req)
         if resp:
             respdata = resp.read()
             return respdata
@@ -101,4 +101,4 @@ def vc(v1, v2):
         return '='
 
 if __name__ == '__main__':
-    print check("127.0.0.1", 9001, 10)
+    print(check("127.0.0.1", 9001, 10))

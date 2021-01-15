@@ -1,6 +1,6 @@
 # coding:utf-8
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import struct
 import socket
@@ -104,10 +104,10 @@ def check(host, port, timeout):
     info = ''
     try:
         if check_heardbeat(host=host, port=port):
-            info = u'存在心脏出血漏洞'
+            info = '存在心脏出血漏洞'
             return info
-    except Exception, e:
+    except Exception as e:
         pass
 
 if __name__ == '__main__':
-    print check('baidu.com', 443)
+    print(check('baidu.com', 443))

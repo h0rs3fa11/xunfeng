@@ -1,7 +1,7 @@
 # coding=utf-8
 import socket
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 def get_plugin_info():
@@ -30,9 +30,9 @@ def check(ip, port, timeout):
         s.close()
         if 'PUT' in data:
             url = 'http://' + ip + ":" + str(port) + '/vultest.txt'
-            request = urllib2.Request(url)
-            res_html = urllib2.urlopen(request, timeout=timeout).read(204800)
+            request = urllib.request.Request(url)
+            res_html = urllib.request.urlopen(request, timeout=timeout).read(204800)
             if 'xxscan0' in res_html:
-                return u"iis webdav漏洞"
-    except Exception, e:
+                return "iis webdav漏洞"
+    except Exception as e:
         pass

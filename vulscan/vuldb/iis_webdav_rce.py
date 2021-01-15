@@ -27,6 +27,6 @@ def check(ip, port, timeout):
         data = s.recv(2048)
         s.close()
         if "PROPFIND" in data and "Microsoft-IIS/6.0" in data :
-            return u"可能存在IIS WebDav 远程代码执行漏洞"
+            return "可能存在IIS WebDav 远程代码执行漏洞"
     except:
         pass

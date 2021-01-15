@@ -31,14 +31,14 @@ def check(ip, port, timeout):
         data = s.recv(1024)
         s.close()
         if 'Environment' in data:
-            return u"Zookeeper Unauthorized access"
+            return "Zookeeper Unauthorized access"
     except:
         pass
 
 
 def main():
     ip = "1.1.1.1"
-    print check(ip, 2181, 2)
+    print(check(ip, 2181, 2))
 
 if __name__ == '__main__':
     main()

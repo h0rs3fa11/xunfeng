@@ -24,7 +24,7 @@ def check(ip, port, timeout):
         s.send("INFO\r\n")
         result = s.recv(1024)
         if "redis_version" in result:
-            return u"未授权访问"
+            return "未授权访问"
         elif "Authentication" in result:
             for pass_ in PASSWORD_DIC:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,6 +32,6 @@ def check(ip, port, timeout):
                 s.send("AUTH %s\r\n" % (pass_))
                 result = s.recv(1024)
                 if '+OK' in result:
-                    return u"存在弱口令，密码：%s" % (pass_)
-    except Exception, e:
+                    return "存在弱口令，密码：%s" % (pass_)
+    except Exception as e:
         pass

@@ -26,6 +26,6 @@ def check(ip, port, timeout):
         data = s.recv(512)
         s.close()
         if 'state=HEADER_VALUE' in data and '400' in data:
-            return u"jetty 共享缓存区远程泄露漏洞"
+            return "jetty 共享缓存区远程泄露漏洞"
     except:
         pass

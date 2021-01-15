@@ -1,14 +1,15 @@
 # coding:utf-8
-import mongo
-import log
+from nascan.lib import mongo
+from nascan.lib import log
 import socket
 import datetime
-import urllib2
+from urllib import request
+from urllib import error as urlerror
 import re
 import time
 import ssl
 import gzip
-import StringIO
+from io import StringIO
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context  # 忽略证书错误
@@ -49,14 +50,14 @@ class scan:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.connect((self.ip, self.port))
             time.sleep(0.2)
-        except Exception, e:
+        except Exception as e:
             return
         try:
             self.banner = sock.recv(1024)
             sock.close()
             if len(self.banner) <= 2:
                 self.banner = 'NULL'
-        except Exception, e:
+        except Exception as e:
             self.banner = 'NULL'
         log.write('portscan', self.ip, self.port, None)
         banner = ''
@@ -64,9 +65,8 @@ class scan:
         time_ = datetime.datetime.now()
         date_ = time_.strftime('%Y-%m-%d')
         try:
-            banner = unicode(self.banner, errors='replace')
-            if self.banner == 'NULL':
-                banner = ''
+            # banner = unicode(self.banner, errors='replace')
+            banner = '' if self.banner == 'NULL' else self.banner
             mongo.NA_INFO.insert({"ip": self.ip, "port": self.port,
                                   "hostname": hostname, "banner": banner, "time": time_})
             self.statistics[date_]['add'] += 1
@@ -121,20 +121,20 @@ class scan:
         if self.server:
             log.write("server", self.ip, self.port, self.server)
             mongo.NA_INFO.update({"ip": self.ip, "port": self.port}, {
-                                 "$set": {"server": self.server}})
+                "$set": {"server": self.server}})
 
     def try_web(self):
         title_str, html = '', ''
         try:
             if self.port == 443:
-                info = urllib2.urlopen("https://%s:%s" %
+                info = request.urlopen("https://%s:%s" %
                                        (self.ip, self.port), timeout=self.timeout)
             else:
-                info = urllib2.urlopen("http://%s:%s" %
+                info = request.urlopen("http://%s:%s" %
                                        (self.ip, self.port), timeout=self.timeout)
             html = info.read()
             header = info.headers
-        except urllib2.HTTPError, e:
+        except urlerror.HTTPError as e:
             html = e.read()
             header = e.headers
         except:
@@ -225,10 +225,10 @@ class scan:
     def get_tag(self):
         try:
             url = self.ip + ':' + str(self.port)
-            tag = map(self.discern, [
-                      'Discern_cms', 'Discern_con', 'Discern_lang'], [url, url, url])
-            return filter(None, tag)
-        except Exception, e:
+            tag = list(map(self.discern, [
+                'Discern_cms', 'Discern_con', 'Discern_lang'], [url, url, url]))
+            return [_f for _f in tag if _f]
+        except Exception as e:
             return
 
     def discern(self, dis_type, domain):
@@ -238,13 +238,13 @@ class scan:
         else:
             protocol = "http://"
         try:
-            req = urllib2.urlopen(protocol + domain, timeout=self.timeout)
+            req = request.urlopen(protocol + domain, timeout=self.timeout)
             header = req.headers
             html = req.read()
-        except urllib2.HTTPError, e:
+        except urlerror.HTTPError as e:
             html = e.read()
             header = e.headers
-        except Exception, e:
+        except Exception as e:
             return
         for mark_info in self.config_ini[dis_type]:
             if mark_info[1] == 'header':
@@ -253,7 +253,7 @@ class scan:
                         return
                     if re.search(mark_info[3], header[mark_info[2]], re.I):
                         return mark_info[0]
-                except Exception, e:
+                except Exception as e:
                     continue
             elif mark_info[1] == 'file':
                 if mark_info[2] == 'index':
@@ -262,22 +262,22 @@ class scan:
                             return
                         if re.search(mark_info[3], html, re.I):
                             return mark_info[0]
-                    except Exception, e:
+                    except Exception as e:
                         continue
                 else:
                     if mark_info[2] in file_tmp:
                         re_html = file_tmp[mark_info[2]]
                     else:
                         try:
-                            re_html = urllib2.urlopen(protocol + domain + "/" + mark_info[2],
+                            re_html = request.urlopen(protocol + domain + "/" + mark_info[2],
                                                       timeout=self.timeout).read()
-                        except urllib2.HTTPError, e:
+                        except urlerror.HTTPError as e:
                             re_html = e.read()
-                        except Exception, e:
+                        except Exception as e:
                             return
                         file_tmp[mark_info[2]] = re_html
                     try:
                         if re.search(mark_info[3], re_html, re.I):
                             return mark_info[0]
-                    except Exception, e:
-                        print mark_info[3]
+                    except Exception as e:
+                        print((mark_info[3]))

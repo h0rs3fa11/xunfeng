@@ -1,6 +1,7 @@
 # coding:utf-8
-import urllib2
-import thread
+from urllib import request
+from urllib import error
+import _thread
 import time
 import pymongo
 import sys
@@ -8,9 +9,8 @@ import datetime
 import hashlib
 import json
 import re
-import uuid
 import os
-from kunpeng import kunpeng
+from vulscan.kunpeng import kunpeng
 
 
 sys.path.append(sys.path[0] + '/vuldb')
@@ -27,7 +27,7 @@ na_plugin = na_db.Plugin
 na_config = na_db.Config
 na_heart = na_db.Heartbeat
 na_update = na_db.Update
-lock = thread.allocate()
+lock = _thread.allocate()
 PASSWORD_DIC = []
 THREAD_COUNT = 50
 TIMEOUT = 10
@@ -88,10 +88,10 @@ class vulscan():
             self.task_netloc[0] + ":" + \
             str(self.task_netloc[1]) + self.plugin_info['plugin']['url']
         if self.plugin_info['plugin']['method'] == 'GET':
-            request = urllib2.Request(url)
+            req = request.Request(url)
         else:
-            request = urllib2.Request(url, self.plugin_info['plugin']['data'])
-        self.poc_request = request
+            req = request.Request(url, self.plugin_info['plugin']['data'])
+        self.poc_request = req
 
     def get_code(self, header, html):
         try:
@@ -112,15 +112,15 @@ class vulscan():
 
     def poc_check(self):
         try:
-            res = urllib2.urlopen(self.poc_request, timeout=30)
+            res = request.urlopen(self.poc_request, timeout=30)
             res_html = res.read(204800)
             header = res.headers
             # res_code = res.code
-        except urllib2.HTTPError, e:
+        except error.HTTPError as e:
             # res_code = e.code
             header = e.headers
             res_html = e.read(204800)
-        except Exception, e:
+        except Exception as e:
             return
         try:
             html_code = self.get_code(header, res_html).strip()
@@ -165,7 +165,7 @@ class vulscan():
         lock.acquire()
         try:
             time_str = time.strftime('%X', time.localtime(time.time()))
-            print "[%s] %s" % (time_str, info)
+            print(("[%s] %s" % (time_str, info)))
         except:
             pass
         lock.release()
@@ -215,7 +215,7 @@ def monitor():
         if queue_count:
             load = 1
         else:
-            ac_count = thread._count()
+            ac_count = _thread._count()
             load = float(ac_count - 6) / THREAD_COUNT
         if load > 1:
             load = 1
@@ -242,8 +242,8 @@ def get_config():
         timeout = int(timeout_row['value'])
         white_list = white_row['value'].split('\n')
         return password_dic, thread_count, timeout, white_list
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
 
 def install_kunpeng_plugin():
     time_ = datetime.datetime.now()
@@ -271,7 +271,7 @@ def init():
         return
     script_plugin = []
     json_plugin = []
-    print 'init plugins'
+    print('init plugins')
     file_list = os.listdir(sys.path[0] + '/vuldb')
     for filename in file_list:
         try:
@@ -309,7 +309,7 @@ def kp_check():
     while True:
         try:
             new_release = kp.check_version()
-            print new_release
+            print(new_release)
             if new_release:
                 info = new_release['body']
                 if '###' in new_release['body']:
@@ -328,7 +328,7 @@ def kp_check():
                 na_update.insert(row)
                 time.sleep(60 * 60 * 48)
         except Exception as e:
-            print e
+            print(e)
         time.sleep(60 * 30)
 
 
@@ -342,16 +342,16 @@ def kp_update():
                 na_plugin.delete_many({'_id':re.compile('^KP')})
                 install_kunpeng_plugin()
         except Exception as e:
-            print e
+            print(e)
         time.sleep(10)
 
 
 if __name__ == '__main__':
     init()
     PASSWORD_DIC, THREAD_COUNT, TIMEOUT, WHITE_LIST = get_config()
-    thread.start_new_thread(monitor, ())
-    thread.start_new_thread(kp_check, ())
-    thread.start_new_thread(kp_update, ())
+    _thread.start_new_thread(monitor, ())
+    _thread.start_new_thread(kp_check, ())
+    _thread.start_new_thread(kp_update, ())
     while True:
         try:
             task_id, task_plan, task_target, task_plugin = queue_get()
@@ -359,22 +359,22 @@ if __name__ == '__main__':
                 time.sleep(10)
                 continue
             if PLUGIN_DB:
-                del sys.modules[PLUGIN_DB.keys()[0]]  # 清理插件缓存
+                del sys.modules[list(PLUGIN_DB.keys())[0]]  # 清理插件缓存
                 PLUGIN_DB.clear()
             for task_netloc in task_target:
                 while True:
-                    if int(thread._count()) < THREAD_COUNT:
+                    if int(_thread._count()) < THREAD_COUNT:
                         if task_netloc[0] in WHITE_LIST:
                             break
                         try:
-                            thread.start_new_thread(
+                            _thread.start_new_thread(
                                 vulscan, (task_id, task_netloc, task_plugin))
                         except Exception as e:
-                            print e
+                            print(e)
                         break
                     else:
                         time.sleep(2)
             if task_plan == 0:
                 na_task.update({"_id": task_id}, {"$set": {"status": 2}})
         except Exception as e:
-            print e
+            print(e)

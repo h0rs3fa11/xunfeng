@@ -71,6 +71,6 @@ def check(ip, port, timeout):
                 sock.send(auth_data)
                 result = sock.recv(1024)
                 if result == "\x07\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00":
-                    return u"存在弱口令，账号：%s，密码：%s" % (user, pass_)
-            except Exception, e:
+                    return "存在弱口令，账号：%s，密码：%s" % (user, pass_)
+            except Exception as e:
                 if "Errno 10061" in str(e) or "timed out" in str(e): return

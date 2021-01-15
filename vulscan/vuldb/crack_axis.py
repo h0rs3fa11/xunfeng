@@ -1,6 +1,6 @@
 # coding:utf-8
 # author:wolf
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 def get_plugin_info():
@@ -29,17 +29,17 @@ def check(host, port, timeout):
             try:
                 login_url = url + '/axis2/axis2-admin/login'
                 PostStr = 'userName=%s&password=%s&submit=+Login+' % (user, password)
-                request = urllib2.Request(login_url, PostStr)
-                res = urllib2.urlopen(request, timeout=timeout)
+                request = urllib.request.Request(login_url, PostStr)
+                res = urllib.request.urlopen(request, timeout=timeout)
                 res_html = res.read()
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 return
-            except urllib2.URLError, e:
+            except urllib.error.URLError as e:
                 error_i += 1
                 if error_i >= 3:
                     return
                 continue
             for flag in flag_list:
                 if flag in res_html:
-                    info = u'存在弱口令，用户名：%s，密码：%s' % (user, password)
+                    info = '存在弱口令，用户名：%s，密码：%s' % (user, password)
                     return info

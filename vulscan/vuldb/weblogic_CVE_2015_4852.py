@@ -4,7 +4,7 @@ import socket
 import struct
 import random
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 def get_plugin_info():
 	plugin_info = {
@@ -53,8 +53,8 @@ def check(ip, port, timeout):
 		s.send(payload)
 		s.close()
 		time.sleep(5)
-		req = urllib2.Request("http://%s:8088/check/%s" % (dnsserver, random_num));
-		reqopen = urllib2.urlopen(req)
-		if 'YES' in reqopen.read():return u"存在Weblogic反序列化漏洞(CVE-2015-4852)"
+		req = urllib.request.Request("http://%s:8088/check/%s" % (dnsserver, random_num));
+		reqopen = urllib.request.urlopen(req)
+		if 'YES' in reqopen.read():return "存在Weblogic反序列化漏洞(CVE-2015-4852)"
 	except:
 		return

@@ -1,7 +1,7 @@
 # coding:utf-8
-import mongo
+from . import mongo
 import socket
-import log
+from . import log
 import datetime
 import time
 import base64
@@ -18,8 +18,8 @@ def format_config(config_name, config_info):
             for mark in config_file:
                 name, location, key, value = mark.strip().split("|", 3)
                 mark_list.append([name.lower(), location, key, value])
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
     return mark_list
 
 
@@ -45,8 +45,8 @@ def monitor(CONFIG_INI, STATISTICS, NACHANGE):
             if base64.b64encode(CONFIG_INI["Scan_list"]) != base64.b64encode(new_config["Scan_list"]):NACHANGE[0] = 1
             CONFIG_INI.clear()
             CONFIG_INI.update(new_config)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
         time.sleep(30)
 
 
@@ -79,7 +79,7 @@ def cruise(STATISTICS,MASSCAN_AC):
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         sock.connect((ip, int(port)))
                         sock.close()
-                    except Exception, e:
+                    except Exception as e:
                         time_ = datetime.datetime.now()
                         date_ = time_.strftime('%Y-%m-%d')
                         mongo.NA_INFO.remove({"ip": ip, "port": port})

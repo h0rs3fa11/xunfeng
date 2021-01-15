@@ -1,22 +1,19 @@
-# -*- coding: UTF-8 -*-
-
 import json
 import os
 from datetime import datetime
-from urllib import unquote, urlopen, urlretrieve, quote, urlencode
+from urllib.request import urlopen, urlretrieve
+from urllib.parse import unquote, quote, urlencode
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 from flask import request, render_template, redirect, url_for, session, make_response
 from flask_wtf.csrf import CSRFError
-from lib.CreateExcel import *
-from lib.Login import logincheck
-from lib.AntiCSRF import anticsrf
-from lib.QueryLogic import querylogic
+from views.lib.CreateExcel import *
+from views.lib.Login import logincheck
+from views.lib.AntiCSRF import anticsrf
+from views.lib.QueryLogic import querylogic
 from werkzeug.utils import secure_filename
 from . import app, Mongo, page_size, file_path, csrf
-import urllib2
-import copy
-
+import urllib.request, urllib.parse, urllib.error
 
 
 # 搜索页
@@ -301,7 +298,6 @@ def search_result_xls():
         redirect(url_for('NotFound'))
 
 
-
 # 插件列表页
 @app.route('/plugin')
 @logincheck
@@ -340,7 +336,7 @@ def AddPlugin():
                 insert_result = Mongo.coll['Plugin'].insert(mark_json)
                 if insert_result:
                     result = 'success'
-                    file_name = file_name +'.py'
+                    file_name = file_name + '.py'
 
     else:
         name = request.form.get('name', '')
@@ -373,15 +369,15 @@ def AddPlugin():
         except:
             pass
     if isupload == 'true' and result == 'success':
-        code_tuple = open(file_path+file_name).read()
+        code_tuple = open(file_path + file_name).read()
         code = ''
         for _ in code_tuple:
             code += _
         params = {'code': code}
-        req = urllib2.Request('https://sec.ly.com/xunfeng/pluginupload')
-        req.add_header('Content-Type','application/x-www-form-urlencoded')
-        rsp = urllib2.urlopen(req,urlencode(params))
-        print 'upload result:' + rsp.read()
+        req = urllib.request.Request('https://sec.ly.com/xunfeng/pluginupload')
+        req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        rsp = urllib.request.urlopen(req, urlencode(params).encode())
+        print(('upload result:' + rsp.read()))
     return result
 
 
@@ -407,9 +403,12 @@ def Analysis():
     ip = len(Mongo.coll['Info'].distinct('ip'))
     record = Mongo.coll['Info'].find().count()
     task = Mongo.coll['Task'].find().count()
-    vul = int(Mongo.coll['Plugin'].group([], {}, {'count': 0},'function(doc,prev){prev.count = prev.count + doc.count}')[0]['count'])
+    vul = int(
+        Mongo.coll['Plugin'].group([], {}, {'count': 0}, 'function(doc,prev){prev.count = prev.count + doc.count}')[0][
+            'count'])
     plugin = Mongo.coll['Plugin'].find().count()
-    vultype = Mongo.coll['Plugin'].group(['type'], {"count":{"$ne":0}}, {'count': 0},'function(doc,prev){prev.count = prev.count + doc.count}')
+    vultype = Mongo.coll['Plugin'].group(['type'], {"count": {"$ne": 0}}, {'count': 0},
+                                         'function(doc,prev){prev.count = prev.count + doc.count}')
     cur = Mongo.coll['Statistics'].find().sort('date', -1).limit(30)
     trend = []
     for i in cur:
@@ -501,7 +500,7 @@ def PullUpdate():
     if j:
         try:
             remotelist = json.loads(j)
-            #remotelist_temp = copy.deepcopy(remotelist)
+            # remotelist_temp = copy.deepcopy(remotelist)
             plugin = Mongo.coll['Plugin'].find({'source': 1})
             for p in plugin:
                 for remote in remotelist:
@@ -538,10 +537,10 @@ def CheckUpdate():
 @logincheck
 def installplugin():
     rsp = 'fail'
-    unicode = request.args.get('unicode', '')
-    item = Mongo.coll['Update'].find_one({'unicode': unicode})
-    if item.get('source','') == 'kunpeng':
-        Mongo.coll['Update'].update_one({'unicode': unicode}, {'$set': {'isInstall': 1}})
+    str = request.args.get('unicode', '')
+    item = Mongo.coll['Update'].find_one({'unicode': str})
+    if item.get('source', '') == 'kunpeng':
+        Mongo.coll['Update'].update_one({'unicode': str}, {'$set': {'isInstall': 1}})
         return 'success'
     json_string = {'add_time': datetime.now(), 'count': 0, 'source': 1}
     file_name = secure_filename(item['location'].split('/')[-1])
@@ -572,7 +571,7 @@ def installplugin():
                 mark_json.pop('plugin')
             json_string.update(mark_json)
             Mongo.coll['Plugin'].insert(json_string)
-            Mongo.coll['Update'].update_one({'unicode': unicode}, {'$set': {'isInstall': 1}})
+            Mongo.coll['Update'].update_one({'unicode': str}, {'$set': {'isInstall': 1}})
             rsp = 'success'
         except:
             pass
@@ -614,5 +613,5 @@ def Error():
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
-    print('csrf handle error: {}.'.format(str(e)))
+    print(('csrf handle error: {}.'.format(str(e))))
     return redirect(url_for('Error'))
