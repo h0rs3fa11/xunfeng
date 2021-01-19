@@ -404,6 +404,7 @@ def Analysis():
     record = Mongo.coll['Info'].find().count()
     task = Mongo.coll['Task'].find().count()
     vul = int(
+        # TODO:mongodb 4.2以上版本不支持group
         Mongo.coll['Plugin'].group([], {}, {'count': 0}, 'function(doc,prev){prev.count = prev.count + doc.count}')[0][
             'count'])
     plugin = Mongo.coll['Plugin'].find().count()

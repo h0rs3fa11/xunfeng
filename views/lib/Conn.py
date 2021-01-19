@@ -8,6 +8,6 @@ class MongoDB(object):
         self.host = host
         self.port = port
         self.database = database
-        self.conn = MongoClient(self.host, self.port)
+        self.conn = MongoClient(f'mongodb://{username}:{password}@{self.host}:{self.port}/{self.database}')
         self.coll = self.conn[self.database]
         self.coll.authenticate(username, password)
